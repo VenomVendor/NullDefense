@@ -1,0 +1,36 @@
+{
+  "name": "VenomVendor",
+  "children": [
+    {
+      "name": "Queen",
+      "isMale": false,
+      "age": 26,
+      "language": {
+        "knownLanguages": [
+          "Telugu",
+          "Tamil"
+        ],
+        "learning": [
+          "French"
+        ]
+      }
+    },
+    {
+      "name": "Prince",
+      "isMale": true,
+      "age": 5,
+      "language": {
+        "knownLanguages": [],
+        "learning": []
+      }
+    },
+    {
+      "name": "Princess",
+      "isMale": false,
+      "age": 3,
+      "language": {
+        "learning": null
+      }
+    }
+  ]
+}
