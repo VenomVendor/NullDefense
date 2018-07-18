@@ -1,0 +1,57 @@
+language: java
+jdk: oraclejdk8
+
+env:
+  global:
+  # COVERITY_SCAN_TOKEN
+  - secure: "G6TLPg3ZHEBJUp8TOMqeOvoI21cuqAuFKtavWRGf0A6603AiJAUaYJmrOFN5VpqfrQx9Xtthy9cvWXgg+VXXnyloFwixZtU31Kt4C5OEXsvCn7nZQVR8KDNV0LHVlkw3NLE/iktMYUR3FQoB0ClIKnYaVQEt+EaW1iiiF7oUncthYf1kWMX+o44U9l+k7uGdErDZTnNYQKPYsgPgpFV8uK/dcLdSOOzBU98hPVGYKOEZM/l08+7QNup9y5Jd+ZL2Ht5MItmC1V4MJyJuDKyzmeybzstbHHgLa7ivaTQOtgPDticXYCPAWqCNWpX0843q5gB3DUHwh7p4Xya/x6F3+WPaCK9/DljCd3V0gbwDeqfhjz8uXblXG/a+lzmoUadtLdY5HCSN4I0AMlLE+ph5WJrnnS3y4kr+vw0rtbk7wbCiQe1GDuwXKTmZ45P1XsOsc8glyz8G3QCobbMGgaVc04ytcCJl0BciNLdA/JqTwFdzF9WcHAw8rQvn0V9eat6VdLdxHeekGF2/P+w8LqJX+BKqKt8+tb/QIpP6KU4DEEge78JIjhFgVF7NyYicNbr7T7CEwlGY7ZKT+XqPJkTcwkN5gsKa5Nk4ua3SFSmQLwJsQXSStyVYLqwHvnnHiFtq/hmZKGp7ZfQ2FI6HVSRvmcAbuo2lfjuSQqYLUWLkvrs="
+  # CODECOV_TOKEN
+  - secure: "qf0vQ/VYf94W6wwysE2pO74PKMjrZnB6JTTDUhOP/d+D5c4MexvKyo89ak7mCg0tz2KfY/25JRqw64N/wcG6UBZDcYRspKNfajCKnbvuVJT97nOLt14C5UVSPB0PhCZErw/iloiiRw981yMNusn2qdoHDbiJeMTgSaCjA6O58tgFcIRPhhiyCf2y7La61ZexN34awIG6zO4wWo7q3a+aybp4wir21diXm7Or5Bb26jRoNs72ZpuvCUp/jKlddqa9IaVafDwoHyctrKf6zPQ1jZc8X79kAkZKwntVAO4iJHZd2XGa4O0kM1Kp8sYJ7iSbJxviKRiqTSAkvquLVtmRUAlgPiUq577kmn1YgXDgkX41VMu8KCrNGgd4zUTYNZOUth+yw/xSDnh77qbGOsNGkKagoden2b4QV5V99rWqPMyvTmPXlRf2FqAp5zoD0aN5qCq/KOoII0Uo+n/Wh6orfowjnxD4Z2i4ga5Xm3XC7y+PAE7FpJDxcUlgyNgBdqW9clY3oRImGP7tnlOLV2tOxJvIyiSz8FtIo/JUNGY12S35a0De6LHhlSF4MJVOnXsWkjrgxcLNQNLCSvLxSYqu/iLxWhDg1LrIGzetpVlQd/eqN472WV2ysCmKkB6Auda/ME4Cm+9PKc0l1MsYUdzNPa02l0BQiyuY3Q2J9RaHHfY="
+  # CODACY_PROJECT_TOKEN:TODO
+  - secure: "nRhU0HfHYyxWXHEzu22FCkgo4IwQNwTE2ZrKdvf+twdfHxMcVeftSoZzs7pwsojmtAqNmPXOhZ5zb8u97lTJjpFSaxIND34EwydVA0qMfcjqJBGrWKvMIpmo7dOo6dP+/xCbkKTt76fN6zL3g9CIG1kBsVACskdPw6U9uqYUVa+x1WJpuFxdBEoRXQk6V1l7SQ30sJqWsdTDM3wLafxGkRuO11GJygASuUkpEhqQftfxGR27GbZJZnoRg7NUBfivuuLK+GQhZljyFpiAzxUpugmB1LNfsdPaagX8hPCKuMqDY3ERM2CGIqMzOVRfmaPFm8COSOKupVpbEkQwObZMK1lY9ra/IxZbMPA+vjgld52t3hS/RGIM/g6DC1FzL58yHQm7hKHP8qGWzFfP7AuUI0rWmgCxBLr/XWQ6EsWEjPT1OYteVfwCm9jBXAWz65hUomISU/41Y7e49NM7UMQSK9gchPcxPqT5QkZ2GFuxyH3kabtoAmV2xVJO9CscfqDWsO4bzzJnFeAxPDcOxlsXHBjpmKmQr5+IZ2quu/Nuo+Y4RiCUkSxMjbxzeiPeWT93yEAf8XgtIu2BneaELIIng5khCJp20JIbu29/m32j0Adx1zm0RSrkZxTHb+UNX1K759g4d+DXJOI1wXYFuAjJibVAQCJqLQoanH60RsGs9z8="
+
+branches:
+  only:
+  - master
+  - ^feature\/.*$
+
+cache:
+  directories:
+  - "$HOME/.m2"
+  - "$HOME/.gradle"
+
+before_cache:
+- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+
+notifications:
+  email: false
+
+before_script:
+- chmod +x gradlew
+- "./gradlew clean"
+
+addons:
+  coverity_scan:
+    project:
+      name: "VenomVendor/NullDefense"
+      description: "Removes null/empty objects during Gson parsing which are marked as mandatory."
+    build_command_prepend: "./gradlew clean"
+    build_command: "./gradlew build"
+    branch_pattern: coverity_scan
+    notification_email: info@venomvendor.com
+
+before_install:
+# for gradle output style
+- export TERM=dumb
+# environment info
+- ./gradlew -v
+- uname -a
+- sudo apt-get install jq
+- wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
+
+script:
+- "./gradlew build"
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+#- java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r build/reports/jacoco/report.xml

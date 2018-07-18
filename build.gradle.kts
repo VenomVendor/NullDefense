@@ -26,4 +26,5 @@ configure<JavaPluginConvention> {
 apply {
     from("dependencies.gradle.kts")
     from("publish.gradle")
+    from("jacoco.gradle")
 }
