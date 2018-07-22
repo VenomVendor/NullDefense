@@ -1,0 +1,47 @@
+language: java
+jdk: oraclejdk8
+
+env:
+  global:
+  # CODECOV_TOKEN
+  - secure: "InU39W/q2HXTQUWZGFlyLy0ilFWpM77Z+IhOSPt5eXB38TnlRjckHheEueSWxL6wSgZrCKpZVQZFFmw/g6H05nXPrWGHdTVh/jv0qQ37eji+uj4YA9dpzzzf+ba1t9ARAJOOjFPrq2DJH+S2uYlZnHpIpe15SdTJtls6UJRwBb4JjnS8+b0JSril0qFRczr9qxzBPmtgDxHn29Uky5Ho2cY/P8j4mxt58aZS9hfUUNbha1NNZrIGk64Jycr3sG9YkosnWEEyxLQWwcghSCuDNI26xRlKHoeWHx52dTGAZBTg1YEPhXB4UZlsTsTKXsWATCh6OMh/Y+VVGYhDyYQ6eH4ZXkVPXA2fvE57j5y6Ylu80Xw6AYrb1+rLEn7JfGEqY1uDmoHWBRwP9cJKhg4puVmxS8w6Ikc092/INqgw6BVkNM1xSaThn69Q41wCTWAlh2bE9RRKCtMHhOl6QzA5nChqf7BBlEhcgG9GMecSWErZXvMFQfcyOvViJW1YKnJrQy2jMOQMIZ+xgAReUzF9tAGXahMP6atEcvvp0bEPOV6Z3VT0VGmjtZeqiNqHrCxxpBnHs79jN1HVinVF5B4wxTTjGVX8pbuRSnS0XkeHzzf8F7oRvwUKUSzkyAf9diwzcRU5P0fFXqWxxC5JOxA+dofQYzwR+ADULcKR7c++11o="
+  # CODACY_PROJECT_TOKEN
+  - secure: "e7f/jMmSfoJ+1fkaxfoMEhn43efCkWTtDOZhe/F7rANzgPYfRvc5R5qNWnTZkREuXjYgOouTws+6s/Seeu3vEGyO3+7L7TI0E9WZZdn8Kt+rZxp07jg3CeIMWwSCXiUD2vsUFlDiNwtFyyFmLD4oJ9vEFaS8eR+nV5vM2xfHqc2YZTz2gJRdpzSlH66S5z6zZqsC+4xqdYLk4BnlGUfyKMVaJV4uM+A9ucOFvctBsTRbdz4FCqXfuN9gF/+oB3krlgnXyhnyK2i3wCCYqF78nbNGszoFiu0I7pvH2J4S3VakqK7IihOPH9fwStxoVjYmncCf6QctcZlmN6qzRt2+tx/SPdXVz4+02vKfj1FRtJOT9Eav18G954baTJCulu1heUC65KEyMFG31xJeoWsVKW/hhvc0BfrIO0KgQPNKDi+csP76YcmfZMtW/iClBZe+NzQ1q3akaR7OJYMNjXWH3Uzv9XfJBmQMXwoDq1PwhOI5LO6Hg1X6GlO2DZ+VwbxTbBXVXv+JN+cGV+Q7s+kG7GIsLcU52HIz32/MXpmI205XKDk2kCuscOGii5CBbtlhjxCxf1AQpFCptVpsceoG9YoJFGdQ/8RXcUfUq8T0gH3AKus4r4I40GupetCwoOYaF2YSCrU9TQp1V8WRL3HzsoYXgB5H1eejPnsqPnGoGGM="
+
+branches:
+  only:
+  - master
+  - ^feature\/.*$
+
+cache:
+  directories:
+  - "$HOME/.m2"
+  - "$HOME/.gradle"
+
+before_cache:
+- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+
+notifications:
+  email: false
+
+before_script:
+- chmod +x gradlew
+- "./gradlew clean"
+
+before_install:
+# for gradle output style
+- export TERM=dumb
+# environment info
+- ./gradlew -v
+- uname -a
+- sudo apt-get install jq
+- wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
+
+script:
+- "./gradlew build"
+
+after_success:
+# Trigger codecov analysis
+- bash <(curl -s https://codecov.io/bash)
+# Trigger codacy analysis
+- java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r build/reports/jacoco/report.xml

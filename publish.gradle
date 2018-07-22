@@ -1,0 +1,115 @@
+apply plugin: "maven-publish"
+apply plugin: "com.jfrog.bintray"
+
+task javadocGen(type: Javadoc) {
+    source = sourceSets.main.allJava
+    failOnError false
+    options {
+        noTimestamp true
+        linkSource false
+        docEncoding 'UTF-8'
+        setMemberLevel JavadocMemberLevel.PUBLIC
+        stylesheetFile file("$project.rootDir/assets/stylesheet.css")
+    }
+    destinationDir file("$buildDir/javadoc")
+    doFirst {
+        classpath += fileTree(dir: "$buildDir/classes", include: "**/*.class")
+    }
+}
+
+task sourcesJar(type: Jar) {
+    dependsOn(JavaPlugin.CLASSES_TASK_NAME)
+    classifier "sources"
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: javadocGen) {
+    classifier "javadoc"
+    from javadocGen.destinationDir
+}
+javadocGen.finalizedBy javadocJar
+
+artifacts {
+    add("archives", sourcesJar)
+    add("archives", javadocJar)
+}
+
+assemble.dependsOn(sourcesJar, javadocJar)
+publish.dependsOn(build)
+
+publishing {
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            url = uri("$buildDir/repo")
+        }
+    }
+    publications {
+        Production(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                description = "Removes null/empty objects during Gson parsing which are marked as mandatory."
+                url = "https://venomvendor.github.io/NullDefense"
+                packaging = "jar"
+                inceptionYear = "2018"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "VenomVendor"
+                        name = "VenomVendor"
+                        email = "info@VenomVendor.com"
+                        url = "https://VenomVendor.com"
+                        timezone = "Asia/Kolkata"
+                        organization = "Individual"
+                    }
+                }
+                issueManagement {
+                    system = "Github"
+                    url = "https://github.com/VenomVendor/NullDefense/issues/"
+                }
+                distributionManagement {
+                    downloadUrl = "http://dl.bintray.com/venomvendor/maven"
+                    status = "deployed"
+                }
+                scm {
+                    url = "https://github.com/VenomVendor/NullDefense"
+                    connection = "scm:git:ssh://git@github.com:VenomVendor/NullDefense.git"
+                    developerConnection = "scm:git:ssh://git@github.com:VenomVendor/NullDefense.git"
+                    tag = "master"
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['Production']
+    configurations = ['archives']
+    override = true
+    pkg {
+        repo = 'maven'
+        name = 'NullDefense'
+        description = "Removes invalid objects during Gson parsing which are marked as required, yet null."
+        publish = true
+        publicDownloadNumbers = true
+        userOrg = user
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/VenomVendor/NullDefense.git'
+        dryRun = true
+        version {
+            name = this.version
+            desc = "Initial release"
+            released = new Date()
+            vcsTag = this.version
+        }
+    }
+}
