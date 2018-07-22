@@ -38,19 +38,13 @@ assemble.dependsOn(sourcesJar, javadocJar)
 publish.dependsOn(build)
 
 publishing {
-    repositories {
-        maven {
-            // change to point to your repo, e.g. http://my.org/repo
-            url = uri("$buildDir/repo")
-        }
-    }
     publications {
-        Production(MavenPublication) {
+        production(MavenPublication) {
             from components.java
             artifact sourcesJar
             artifact javadocJar
             pom {
-                description = "Removes null/empty objects during Gson parsing which are marked as mandatory."
+                description = "Removes invalid objects during Gson parsing which are marked as required, yet null/empty."
                 url = "https://venomvendor.github.io/NullDefense"
                 packaging = "jar"
                 inceptionYear = "2018"
@@ -90,26 +84,52 @@ publishing {
 }
 
 bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    publications = ['Production']
+    def localProps = './local.properties'
+    def signingKey
+
+    if (file(localProps).exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file(localProps).newDataInputStream())
+
+        user = properties.getProperty('bintrayUser')
+        key = properties.getProperty('bintrayApiKey')
+        signingKey = properties.getProperty('bintraySignKey')
+    } else {
+        user = System.getenv('BINTRAY_USER')
+        key = System.getenv('BINTRAY_API_KEY')
+        signingKey = System.getenv('BINTRAY_SIGN_KEY')
+    }
+
+    def buildBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    def canPublish = buildBranch == 'master'
+
+    publications = ['production']
     configurations = ['archives']
     override = true
     pkg {
         repo = 'maven'
         name = 'NullDefense'
-        description = "Removes invalid objects during Gson parsing which are marked as required, yet null."
-        publish = true
-        publicDownloadNumbers = true
-        userOrg = user
+        userOrg = 'venomvendor'
+        description = "Removes invalid objects during Gson parsing which are marked as required, yet null/empty."
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/VenomVendor/NullDefense.git'
-        dryRun = true
+        websiteUrl = 'https://venomvendor.github.io/NullDefense'
+        issueTrackerUrl = 'https://github.com/VenomVendor/NullDefense/issues'
+        labels = ['gson', 'library', 'null check', 'android']
+        publicDownloadNumbers = true
+        override = true
+        dryRun = !canPublish
+        publish = canPublish
+
         version {
             name = this.version
             desc = "Initial release"
             released = new Date()
             vcsTag = this.version
+            gpg {
+                sign = true
+                passphrase = signingKey
+            }
         }
     }
 }
