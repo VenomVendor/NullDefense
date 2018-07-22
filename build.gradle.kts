@@ -14,6 +14,7 @@ buildscript {
     dependencies {
         classpath("com.github.dcendents:android-maven-gradle-plugin:2.1")
         classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
+        classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.2")
     }
 }
 
