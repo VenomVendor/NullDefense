@@ -3,6 +3,12 @@ jdk: oraclejdk8
 
 env:
   global:
+  # BINTRAY_USER
+  - secure: "2L4QIYMp2/PpzVSDrUKhscbErn+B7h/qpQkgBi4YS/UQ6qb5vd/IqQKpaDeFDaj8KUW1H/7PFYuNOZnnH41aZdhcfndlxlAKMH8m+EP8iD7ATfVmsFOGYLTifhSRv8rHr1EsqSau6DL+UIlG5a/PNG8WproZpDpUZd8hREEL58Ga2M8PV5u2l9Lir/fMyGvoDGtxjsa+RryRvQgNGTI0gli0k+329uOjr9XQKkMsTUYzq2d+ZzbBvpQJuYwopyUKM6YJQ2725wzeaE5U+t5fD/fEXFGAj42EnnRS0KZRzp0Vb6zPJx+uDzgmzG3PTJmvZmQjkP1Tis18s09rwzfix6pKER1Xs2/a3j3NbRJMF90WyLQ16m5GALaSQDSaExY022JGAXqvMVqHgLSQIIVMflgRkPnPlOrUPsd3t9RRKKCHhGhp+tD4SUd7O4fQWzJfUqjy0Zp5tFXnS2KX9V8P44FXYKGbfPu6EZdyL219R5LfjkbvCbZJAzf+51cnT7Qk+nucLEUaPlg+2rwX/ZmkaQQ473SsonskDvLkvDNUuCKd+OVk9jEQx6bWdxEuCiqFQRyEHSev1BkYjWgaqDvM41aFq4c11SzNFiGvnGGvvF4VkhZVVRGdrZKEsZBKD7WvSwiVbGg5B0Mq7IuQ5Lq9/OVXpeF/6Jpu5kjOfvZA2gY="
+  # BINTRAY_API_KEY
+  - secure: "JjYIc1i9ri7BBEZM9is+LpJojpbW5V8TlWYQa9I3BbtSKSo388ElarAbk09nxAbliTxzPO6MwRBV52Cj+dwUSlZ68j2hd7D032aeM19MVY44wHnV2GtL8sMAHY6VOzVzNMXVBTW9VJBw4i0XWN1sAarSjkSZONqyR0O/v4vDltZs2EnnCz9wMHaoaXq4PrgDmUi5k47+m8dEDhzHpHWfu3lgUBVh54XOlpDJpwsoaAm6Eqlca/dUlINUuMPuVJurg5ERw9LbpZqvh2qmW6sbN2IbkyJWNLe3PEhUacLdZKmqNl6v1YQNaGFX8CzCObNy+itfFb6g5xpPH/wcNQlQcDDW1z3tuTqmXgIA3PoZWK8mqKgbr0Ly46iYbPe+KRPEftRFjtEujiOEbPAI6OHba0PPdf7fUoE7/EgP+yJ0jxroWmo3/sUn4DLD/nrrEIdpCnMOPZgb1UbrYZpyT0tC4A9KT6UA889+G1eRSaFaWc5L2118mHeM+0DWRMAIh/j2eY3SnNHPuvxnXfMQhusQn3CM9Pr5tJ9zfbncPeKUdV9l27qnLkJQyloI0gE6JOxA5XmyusnOsyI4lD4DS7KMgmXjrxx1XM1yossqz/f6EEvBZc44l7/FD9TOsCNRnVNEf13MbHRjtNG543ywnIyDANOD2CyCNv8h7wLEVWWjjvo="
+  # BINTRAY_SIGN_KEY
+  - secure: "AmzPfWgv20WqiCoMn9UejwvVI2C5MOPZJYz7Z3Kc2PYVnhPGn0svUmkk6DMslrTO0P+8Gv3xCqUbz5LQQ4bsOha1JUUYIfoSachljiL6WddeAVF5QYrmRbT/PDKLeOaSofo5KmgEo8us+uvzVf6guMlf7IP7oDaOXtjB7JEQwm47f/J4oN5VcM9gknZWol12VEI8OxQt8vb7/UY9jcsReTLy/wvewr6SjrAWR91r2oR2wKMAU1yqm068Hk5TnrWigQtBJsBLtEWaGgp4qJPTeN3K+SyMsA1TuYu2R0//lkLnpRnA7z1Sh0JgRis7Qr2YW+sGWovof7+AbBcOeCkD8GhgoinIsVAciucj31Dg3M3mfFLUlEknsjXsC2ewc1Jl5uZDyTS33RfBuyP6xIq7C2REO4KyB6PwtO1paiwcCFiPl6iSpX9t3/x6RT6x3j2e5MvPBKPv3atTcF8rmwv5RO+4m1TACZ+LxP1RpQZm2zk4RqcJGQeXoJSWRUQcuOW5oLGjBpQhATM8epCiGFegNHov+JRuJFABTHI7rPQlqgzHaxdQxX5f8pmmeMVEwNyBnyVzpnu1xfqooDP5W/wAYRFt+1ZTop/ph6BvVWHERSyLdZvzpjoIItWCUIJVESD0+EiHPdU4fYeMUKm5JRDIcPk5QhlapkeZHsQRIksBwcI="
   # CODECOV_TOKEN
   - secure: "InU39W/q2HXTQUWZGFlyLy0ilFWpM77Z+IhOSPt5eXB38TnlRjckHheEueSWxL6wSgZrCKpZVQZFFmw/g6H05nXPrWGHdTVh/jv0qQ37eji+uj4YA9dpzzzf+ba1t9ARAJOOjFPrq2DJH+S2uYlZnHpIpe15SdTJtls6UJRwBb4JjnS8+b0JSril0qFRczr9qxzBPmtgDxHn29Uky5Ho2cY/P8j4mxt58aZS9hfUUNbha1NNZrIGk64Jycr3sG9YkosnWEEyxLQWwcghSCuDNI26xRlKHoeWHx52dTGAZBTg1YEPhXB4UZlsTsTKXsWATCh6OMh/Y+VVGYhDyYQ6eH4ZXkVPXA2fvE57j5y6Ylu80Xw6AYrb1+rLEn7JfGEqY1uDmoHWBRwP9cJKhg4puVmxS8w6Ikc092/INqgw6BVkNM1xSaThn69Q41wCTWAlh2bE9RRKCtMHhOl6QzA5nChqf7BBlEhcgG9GMecSWErZXvMFQfcyOvViJW1YKnJrQy2jMOQMIZ+xgAReUzF9tAGXahMP6atEcvvp0bEPOV6Z3VT0VGmjtZeqiNqHrCxxpBnHs79jN1HVinVF5B4wxTTjGVX8pbuRSnS0XkeHzzf8F7oRvwUKUSzkyAf9diwzcRU5P0fFXqWxxC5JOxA+dofQYzwR+ADULcKR7c++11o="
   # CODACY_PROJECT_TOKEN
@@ -11,34 +17,35 @@ env:
 branches:
   only:
   - master
-  - ^feature\/.*$
+  - "^feature\\/.*$"
 
 cache:
   directories:
   - "$HOME/.m2"
   - "$HOME/.gradle"
 
-before_cache:
-- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
-
 notifications:
   email: false
-
-before_script:
-- chmod +x gradlew
-- "./gradlew clean"
 
 before_install:
 # for gradle output style
 - export TERM=dumb
+- chmod +x gradlew
 # environment info
-- ./gradlew -v
+- "./gradlew -v"
 - uname -a
 - sudo apt-get install jq
 - wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
 
+before_script:
+- "./gradlew --stop"
+- "./gradlew clean"
+
 script:
-- "./gradlew build"
+- "./gradlew publish bintrayUpload"
+
+before_cache:
+- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 
 after_success:
 # Trigger codecov analysis

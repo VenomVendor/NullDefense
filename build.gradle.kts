@@ -1,5 +1,10 @@
 plugins {
     `java-library`
+    `kotlin-dsl`
+}
+
+rootProject.apply {
+    from("version.gradle.kts")
 }
 
 buildscript {
@@ -12,8 +17,8 @@ buildscript {
     }
 }
 
-group = "com.venomvendor.library"
-version = "1.0.0"
+group = extra["group"] as String
+version = extra["currentVersion"] as String
 
 repositories {
     jcenter()

@@ -103,3 +103,4 @@ fabric.properties
 # Code
 .vscode
 .gtm
+/local.properties
