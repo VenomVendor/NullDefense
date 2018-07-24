@@ -1,5 +1,6 @@
 language: java
 jdk: oraclejdk8
+sudo: false
 
 env:
   global:
@@ -36,8 +37,7 @@ before_install:
 # environment info
 - "./gradlew -v"
 - uname -a
-- sudo apt-get install jq
-- wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
+- wget -O ~/codacy-coverage-reporter-assembly-latest.jar "https://github.com/codacy/codacy-coverage-reporter/releases/download/4.0.2/codacy-coverage-reporter-4.0.2-assembly.jar"
 
 before_script:
 - "./gradlew --stop"
