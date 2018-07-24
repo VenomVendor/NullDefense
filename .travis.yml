@@ -16,6 +16,8 @@ env:
   - secure: "e7f/jMmSfoJ+1fkaxfoMEhn43efCkWTtDOZhe/F7rANzgPYfRvc5R5qNWnTZkREuXjYgOouTws+6s/Seeu3vEGyO3+7L7TI0E9WZZdn8Kt+rZxp07jg3CeIMWwSCXiUD2vsUFlDiNwtFyyFmLD4oJ9vEFaS8eR+nV5vM2xfHqc2YZTz2gJRdpzSlH66S5z6zZqsC+4xqdYLk4BnlGUfyKMVaJV4uM+A9ucOFvctBsTRbdz4FCqXfuN9gF/+oB3krlgnXyhnyK2i3wCCYqF78nbNGszoFiu0I7pvH2J4S3VakqK7IihOPH9fwStxoVjYmncCf6QctcZlmN6qzRt2+tx/SPdXVz4+02vKfj1FRtJOT9Eav18G954baTJCulu1heUC65KEyMFG31xJeoWsVKW/hhvc0BfrIO0KgQPNKDi+csP76YcmfZMtW/iClBZe+NzQ1q3akaR7OJYMNjXWH3Uzv9XfJBmQMXwoDq1PwhOI5LO6Hg1X6GlO2DZ+VwbxTbBXVXv+JN+cGV+Q7s+kG7GIsLcU52HIz32/MXpmI205XKDk2kCuscOGii5CBbtlhjxCxf1AQpFCptVpsceoG9YoJFGdQ/8RXcUfUq8T0gH3AKus4r4I40GupetCwoOYaF2YSCrU9TQp1V8WRL3HzsoYXgB5H1eejPnsqPnGoGGM="
   # COVERALLS_REPO_TOKEN
   - secure: "LxygogeWD45lV6gQGWn5LG19EaZij8ONPOFTjlKRJkyk0y2pJ3R9mZNuA8IU7ybk/tOsx4Xe5PhWfNoo2IPdX0HiZp/fNgKY20XYvMBuiBHQpgAC2aAJBGxtOHmWjE+YHJDpx1vk4yyA6hs2qhD6uEEDfHpffRw7ZiTh2ZxtgrMYIG99E8Gnog4mMZsYF+8rGIk4WoMnYDmu6G8DT74iUiStksvHHrQ10x4XodOADR+EPTcFwclpnv28+0d+4eWaBrBm0daTKKkkczIGXzZ6X3Ef/szSvLlaFiVewxg+AR21cRf7ym3qxC4aLwXwT2rp7olqk5spGITRULaijUsRF1EA4G3CNBNCt1ZoUFokbvr+w2dSBokuL6pUBk5uoMuGbxQtXPm3m4cNdiDabCgyH/nkktRbV8A9wJTJlDE8iWDVT4IFs0vLX+aURcWJi0Zmy5ZnWlMMlJNez+iUQ2NKnrDVuGylC00hgJzOSd3aLhuTL90SSIsAJidyax4ivo/LGcjAlrypupXHsJMGBbYdEpGd5JjCktl/RcN/Nndk6q7fZYVsV7HTyGlFbtscStZQGyPB4HmtiyPHLwL+NNrV8xpSzvnXmmlbcAigKmX7tI1brYJsXUk1wyqugYuwDRY+2LkF9qOo+XDz+qXhTspd9hTVvB+qfbsTFxkOfseydAg="
+  # CODE CLIMATE
+  - secure: "FOQktr039KHL4cddO/yE7Jry5eQ94ZXl1sUex4DMRhyR3XAO8/2FbEOq4MMxhXPItDER8QQ2j6YkczSdXY+CNIjubA3mmDbrmZJvvaJZkfIaolHp4nACku/u9WDGPaCnI4hY9L5RA4vwJ4WUjzYZ0uFWr5PyFSdImI1r8GH5O+5r+7Ti6kUtQDcvg98beKrmYun3kAoHmqKEMuqOfdHWjqlkwhPN1XhFFF0YHEiGEzG4OhWEuZD9ydM+ZJbeu48oW6yFngRNl7XTljB1/ReowDsY9wuYAITM5sDmefdLcm7q7dYCZrfNaCjm6SurHN+s5BVT7wrtgzgMrhesD4x6JGDkqVgWJoRgVZ6pe4pAXyOQmzHFiz98FNxjCxS8f4+r7fCFcMKiGZVEjBjRqoxYFtJoCxeVdTJ/nJCnkeIJinBdfpTCs6aLwK4YCynGCbIJfHW39L097hT/A5c0OrP0s9mzCShIAPzY8F3idrbsHLYemff42kYJWYnBoCGciN7qpLpOCtcWZrWspAaoNZ+2j8/wiWlmRdvKB4R+nQHCWDyGdjNF0AvRvwVdkjvzI+NloQkSoWCTPJbnxnZa+Roy7GHFl7eVfygHZZZQm00TYKsJBGZI2UU/E2mWzgOp2cSb50wjeE2E0VsAofWtCdzjSJAS6S4FWq5//kxnTkLBVGg="
 
 branches:
   only:
@@ -42,9 +44,16 @@ before_install:
 before_script:
 - "./gradlew --stop"
 - "./gradlew clean"
+- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+- chmod +x ./cc-test-reporter
+- ./cc-test-reporter before-build
 
 script:
 - "./gradlew publish bintrayUpload"
+
+after_script:
+- JACOCO_SOURCE_PATH=src/main/java ./cc-test-reporter format-coverage build/reports/jacoco/report.xml --input-type jacoco
+- ./cc-test-reporter upload-coverage
 
 before_cache:
 - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock

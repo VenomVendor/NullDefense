@@ -23,6 +23,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -32,39 +34,40 @@ import java.util.Collections;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
- * Adapter for removing null or empty Collection once the object is created.
+ * Adapter for removing <b>null</b> objects &amp; <b>empty</b> Collection once the object is created.
  * <p>
  * Incase of {@link Collection}, empty collection is invalid unless {@link #retainEmptyCollection()}
- * is called explicility, to retain empty collection, this can be useful incase of search results.
+ * is called explicility to retain empty collection. This can be useful incase of search results.
  * <p>
  * This also processess all collection &amp; finally removes {@code null} from Collection,
  * further processes collection to remove all {@code null} from results.<pre>
- * {@code
  *   public class Parent {
- *         @Mandatory
- *         @SerializedName("name")
- *         private String name;
+ *        &#064;Mandatory
+ *        &#064;SerializedName("name")
+ *        private String name;
  *
- *         @Mandatory
- *         @SerializedName("children")
- *         private CustomList<Child> children;
+ *        &#064;Mandatory
+ *        &#064;SerializedName("children")
+ *        private CustomList<Child> children;
  *
- *         @SerializedName("id")
- *         private Integer id
+ *        &#064;SerializedName("id")
+ *        private Integer id
  *
- *         ...
- *         setters/getters
- *         ...
- *   }}</pre>
+ *        ...
+ *        setters/getters
+ *        ...
+ *   }</pre>
  * When registered, Gson will remove the Whole object if any of the field marked as {@code Mandatory}
  * is null, however the same is not applicable for {@code Primitive} types.
  * Refer: {@link com.google.gson.internal.Primitives#isPrimitive(Type)}
- *
- * <pre>{@code
- *     TypeAdapterFactory typeAdapter = new NullDefenseTypeAdapterFactory(Mandatory.class)
+ * <p>
+ * <pre>TypeAdapterFactory typeAdapter = new NullDefenseTypeAdapterFactory(Mandatory.class)
+ *         // To retain empty collection
  *         .retainEmptyCollection()
+ *         // To remove empty collection, this is default
  *         .removeEmptyCollection();
  *
  *     Gson gson = new GsonBuilder()
@@ -74,17 +77,15 @@ import javax.annotation.Nonnull;
  *         .setLenient()
  *         .serializeNulls()
  *         .create();
- * }</pre>
+ * </pre>
  */
 @SuppressWarnings("All")
 public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
 
-    /* Single Immutable copy of null */
-    private static final Collection NULL_COLLECTION = Collections.singleton(null);
     /* Annotation by which variables are marked mandatory */
     private final Class<? extends Annotation> annotatedType;
-    /* When true Collection#size() == 0 is removed */
-    private boolean removeEmptyCollection;
+    /* When true, Collection#size() == 0 is removed */
+    private boolean discardEmpty;
 
     /**
      * Requires annotated class type for checking fields with annotation
@@ -105,7 +106,7 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
      * @return A copy of current instance
      */
     public NullDefenseTypeAdapterFactory removeEmptyCollection() {
-        removeEmptyCollection = true;
+        discardEmpty = true;
         return this;
     }
 
@@ -115,14 +116,14 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
      * @return A copy of current instance
      */
     public NullDefenseTypeAdapterFactory retainEmptyCollection() {
-        removeEmptyCollection = false;
+        discardEmpty = false;
         return this;
     }
 
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<T> author = gson.getDelegateAdapter(this, type);
-        return new DefensiveAdapter<>(author);
+        return new DefensiveAdapter<>(author, discardEmpty, annotatedType);
     }
 
     /**
@@ -132,13 +133,23 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
      *
      * @param <T> Type of object.
      */
-    private final class DefensiveAdapter<T> extends TypeAdapter<T> {
+    private static final class DefensiveAdapter<T> extends TypeAdapter<T> {
+        /* Single Immutable copy of null */
+        private static final Collection NULL_COLLECTION = Collections.singleton(null);
         /* Registered type adapter for current type */
         private final TypeAdapter<T> author;
+        /* Annotation by which variables are marked mandatory */
+        private final Class<? extends Annotation> annotatedType;
+        /* When true, Collection#size() == 0 is removed */
+        private final boolean discardEmpty;
 
-        DefensiveAdapter(@Nonnull TypeAdapter<T> author) {
-            Objects.requireNonNull(author, "TypeAdapter is null");
+        DefensiveAdapter(@Nonnull TypeAdapter<T> author, boolean discardEmpty,
+                         @Nonnull Class<? extends Annotation> annotatedType) {
+            Objects.requireNonNull(author, "TypeAdapter cannot be null");
+            Objects.requireNonNull(annotatedType, "Annotation cannot be null");
             this.author = author;
+            this.discardEmpty = discardEmpty;
+            this.annotatedType = annotatedType;
         }
 
         @Override
@@ -149,13 +160,13 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
         }
 
         @Override
-        public T read(JsonReader in) throws IOException {
+        public T read(JsonReader reader) throws IOException {
             // Usually never null
-            if (in == null) {
+            if (reader == null) {
                 return null;
             }
             // Get read value, after processing with gson
-            T result = author.read(in);
+            T result = author.read(reader);
 
             // if null, return it.
             if (result == null) {
@@ -172,42 +183,78 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @param result data to process
          * @return same result if not null or conditional empty, else {@code null}
          */
-        private <E> E getFilteredData(@Nonnull E result) {
+        private T getFilteredData(@Nonnull T result) {
             for (Field field : result.getClass().getDeclaredFields()) {
                 if (field.getType().isPrimitive()) {
                     // Skip primitives
                     continue;
                 }
-
-                // Check if current field is marked
-                if (field.isAnnotationPresent(annotatedType)) {
-                    // To read private fields
-                    field.setAccessible(true);
-
-                    Object value = null;
-                    try {
-                        // Lil, costly operation.
-                        value = field.get(result);
-                    } catch (IllegalAccessException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    if (value == null) {
-                        return null;
-                    }
-                    if (value instanceof Collection) {
-                        Collection subCollection = ((Collection) value);
-                        // Cost is O(N^2), due to rearrangement
-                        subCollection.removeAll(NULL_COLLECTION);
-                        if (removeEmptyCollection && subCollection.isEmpty()) {
-                            return null;
-                        }
-                    }
+                if (containsInvalidData(result, field)) {
+                    return null;
                 }
             }
 
             // Finally, we have valid data.
             return result;
+        }
+
+        /**
+         * Check if data contains null or empty objects
+         *
+         * @param result data to process
+         * @param field  declared variable in current object
+         * @return {@code true} if data is invalid
+         */
+        private boolean containsInvalidData(@Nonnull T result, @Nonnull Field field) {
+            // Check if current field is marked
+            if (field.isAnnotationPresent(annotatedType)) {
+                // To read private fields
+                field.setAccessible(true);
+
+                Object value = null;
+                try {
+                    // Lil, costly operation.
+                    value = field.get(result);
+                } catch (IllegalAccessException ex) {
+                    ex.printStackTrace();
+                }
+
+                // Check of emptyness
+                if (isEmpty(value)) {
+                    return true;
+                }
+            }
+            // Data is valid
+            return false;
+        }
+
+        /**
+         * Checks if data is either null or empty
+         *
+         * @param value data to process
+         * @return {@code true} if data is invalid
+         */
+        private boolean isEmpty(@Nullable Object value) {
+            return value == null || isEmptyCollection(value);
+        }
+
+        /**
+         * Checks if data is of type collection &amp; removes all null items from collection,
+         * before checking for total number of items in it.
+         *
+         * @param value data to process
+         * @return {@code true} if data is invalid
+         */
+        private boolean isEmptyCollection(@NotNull Object value) {
+            if (value instanceof Collection) {
+                Collection subCollection = ((Collection) value);
+                // Cost is O(N^2), due to rearrangement
+                subCollection.removeAll(NULL_COLLECTION);
+                if (discardEmpty && subCollection.isEmpty()) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
