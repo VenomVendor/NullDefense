@@ -38,6 +38,11 @@ assemble.dependsOn(sourcesJar, javadocJar)
 publish.dependsOn(build)
 
 publishing {
+    repositories {
+        maven {
+            url = uri("$buildDir/maven")
+        }
+    }
     publications {
         production(MavenPublication) {
             from components.java
@@ -100,12 +105,20 @@ bintray {
         signingKey = System.getenv('BINTRAY_SIGN_KEY')
     }
 
-    def buildBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-    def canPublish = buildBranch == 'master'
+    def currentBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    def currentBranchHash = 'git rev-parse HEAD'.execute().text.trim()
+    def masterBranchHash = 'git rev-parse origin/master'.execute().text.trim()
+
+    def canPublish = currentBranchHash == masterBranchHash
+
+    println("currentBranch: $currentBranch\n" +
+            "currentBranchHash: $currentBranchHash\n " +
+            "masterBranchHash: $masterBranchHash")
+    println("dryRun: ${!canPublish}, publish: $canPublish")
 
     publications = ['production']
     configurations = ['archives']
-    override = true
+
     pkg {
         repo = 'maven'
         name = 'NullDefense'
@@ -123,7 +136,7 @@ bintray {
 
         version {
             name = this.version
-            desc = "Initial release"
+            desc = "Releasing v-${project.version}"
             released = new Date()
             vcsTag = this.version
             gpg {
