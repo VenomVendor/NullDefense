@@ -197,7 +197,7 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
                     }
                     if (value instanceof Collection) {
                         Collection subCollection = ((Collection) value);
-                        // Cost is O(N²), due to rearrangement
+                        // Cost is O(N^2), due to rearrangement
                         subCollection.removeAll(NULL_COLLECTION);
                         if (removeEmptyCollection && subCollection.isEmpty()) {
                             return null;
