@@ -34,37 +34,37 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
- * Adapter for removing null or empty Collection once the object is created.
+ * Adapter for removing <b>null</b> objects &amp; <b>empty</b> Collection once the object is created.
  * <p>
  * Incase of {@link Collection}, empty collection is invalid unless {@link #retainEmptyCollection()}
- * is called explicility, to retain empty collection, this can be useful incase of search results.
+ * is called explicility to retain empty collection. This can be useful incase of search results.
  * <p>
  * This also processess all collection &amp; finally removes {@code null} from Collection,
  * further processes collection to remove all {@code null} from results.<pre>
- * {@code
  *   public class Parent {
- *         @Mandatory
- *         @SerializedName("name")
- *         private String name;
+ *        &#064;Mandatory
+ *        &#064;SerializedName("name")
+ *        private String name;
  *
- *         @Mandatory
- *         @SerializedName("children")
- *         private CustomList<Child> children;
+ *        &#064;Mandatory
+ *        &#064;SerializedName("children")
+ *        private CustomList<Child> children;
  *
- *         @SerializedName("id")
- *         private Integer id
+ *        &#064;SerializedName("id")
+ *        private Integer id
  *
- *         ...
- *         setters/getters
- *         ...
- *   }}</pre>
+ *        ...
+ *        setters/getters
+ *        ...
+ *   }</pre>
  * When registered, Gson will remove the Whole object if any of the field marked as {@code Mandatory}
  * is null, however the same is not applicable for {@code Primitive} types.
  * Refer: {@link com.google.gson.internal.Primitives#isPrimitive(Type)}
- *
- * <pre>{@code
- *     TypeAdapterFactory typeAdapter = new NullDefenseTypeAdapterFactory(Mandatory.class)
+ * <p>
+ * <pre>TypeAdapterFactory typeAdapter = new NullDefenseTypeAdapterFactory(Mandatory.class)
+ *         // To retain empty collection
  *         .retainEmptyCollection()
+ *         // To remove empty collection, this is default
  *         .removeEmptyCollection();
  *
  *     Gson gson = new GsonBuilder()
@@ -74,7 +74,7 @@ import javax.annotation.Nonnull;
  *         .setLenient()
  *         .serializeNulls()
  *         .create();
- * }</pre>
+ * </pre>
  */
 @SuppressWarnings("All")
 public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
@@ -172,7 +172,7 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @param result data to process
          * @return same result if not null or conditional empty, else {@code null}
          */
-        private <E> E getFilteredData(@Nonnull E result) {
+        private T getFilteredData(@Nonnull T result) {
             for (Field field : result.getClass().getDeclaredFields()) {
                 if (field.getType().isPrimitive()) {
                     // Skip primitives
