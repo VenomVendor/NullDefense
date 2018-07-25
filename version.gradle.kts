@@ -6,4 +6,4 @@ val suffix = "-beta"
 val version = "${extra["major"]}.${extra["minor"]}.${extra["patch"]}"
 
 extra["currentVersion"] = "$version$suffix"
-extra["group"] = "com.venomvendor.library"
+extra["group"] = "com.venomvendor"
