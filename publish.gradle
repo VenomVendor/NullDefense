@@ -11,7 +11,7 @@ task javadocGen(type: Javadoc) {
         setMemberLevel JavadocMemberLevel.PUBLIC
         stylesheetFile file("$project.rootDir/assets/stylesheet.css")
     }
-    destinationDir file("$rootDir/docs/javadoc/")
+    destinationDir file("$buildDir/docs/")
     doFirst {
         classpath += fileTree(dir: "$buildDir/classes", include: "**/*.class")
     }

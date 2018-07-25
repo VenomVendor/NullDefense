@@ -3,15 +3,15 @@ plugins:
     enabled: true
     config:
       rules:
-        - "java-basic"
-        - "java-braces"
-        - "java-codesize"
-        - "java-codesize"
-        - "java-design"
-        - "java-naming"
+      - "java-basic"
+      - "java-braces"
+      - "java-codesize"
+      - "java-codesize"
+      - "java-design"
+      - "java-naming"
   sonar-java:
     enabled: true
     config:
       tests_patterns:
-          - src/test/**
+      - src/test/**
       sonar.java.source: 8

@@ -11,8 +11,8 @@ jacocoTestReport {
         html.enabled = true
         xml.enabled = true
         csv.enabled = false
-        xml.destination file("${buildDir}/reports/jacoco/report.xml")
-        html.destination file("${buildDir}/reports/jacoco/html")
+        xml.destination file("$buildDir/reports/jacoco/report.xml")
+        html.destination file("$buildDir/reports/jacoco/html")
     }
 
     def excludedClasses = [
@@ -32,5 +32,5 @@ jacocoTestReport {
 test.finalizedBy jacocoTestReport
 
 coveralls {
-    jacocoReportPath = "${buildDir}/reports/jacoco/report.xml"
+    jacocoReportPath = "$buildDir/reports/jacoco/report.xml"
 }
