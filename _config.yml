@@ -1,1 +1,5 @@
-theme: jekyll-theme-architect
+theme: jekyll-theme-cayman
+title: NullDefense | Gson
+description: Removes invalid objects during Gson parsing which are marked as required, yet null/empty.
+show_downloads: true
+google_analytics: UA-36597975-4
