@@ -1,0 +1,8 @@
+* text=auto
+
+*.gitattributes text
+.gitignore text
+*.md text
+
+assets/* linguist-vendored
+docs/javadoc/* linguist-documentation
