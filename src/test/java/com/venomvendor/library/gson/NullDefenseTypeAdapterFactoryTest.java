@@ -173,11 +173,7 @@ class NullDefenseTypeAdapterFactoryTest extends BaseTest {
             ParentTest parent = parser.fromJson("{\"name\":\"VenomVendor\"}", ParentTest.class);
             assertNotNull(parent);
 
-            IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
-                    defensiveParser.toJson(parent, ParentTest.class));
-
-            assertTrue(exception.getMessage().contains("children"),
-                    "Expecting `children`, as children is mandatory");
+            assertTrue(defensiveParser.toJson(parent, ParentTest.class).contains("children"));
         });
     }
 

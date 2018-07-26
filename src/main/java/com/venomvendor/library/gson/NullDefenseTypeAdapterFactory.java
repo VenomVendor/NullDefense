@@ -23,18 +23,15 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Adapter for removing <b>null</b> objects &amp; <b>empty</b> Collection once the object is created.
@@ -88,12 +85,19 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
     private boolean discardEmpty;
 
     /**
-     * Requires annotated class type for checking fields with annotation
+     * Requires annotated class for checking fields with annotation.
+     * <p>Example</p>
+     * <pre>
+     * &#064;Retention(RetentionPolicy.RUNTIME)
+     * &#064;Target({ElementType.FIELD})
+     * public @interface Mandatory { }
+     * </pre>
      *
-     * @param annotatedType Class used for marking fields as mandatory
-     * @throws NullPointerException {@inheritDoc}
+     * @param annotatedType Class used for marking fields as mandatory,
+     *                      this has to be of retention type {@link RetentionPolicy#RUNTIME}
+     * @throws NullPointerException if annotated class is null
      */
-    public NullDefenseTypeAdapterFactory(@Nonnull Class<? extends Annotation> annotatedType) {
+    public NullDefenseTypeAdapterFactory(Class<? extends Annotation> annotatedType) {
         Objects.requireNonNull(annotatedType, "Annotation class cannot be null");
         this.annotatedType = annotatedType;
         removeEmptyCollection();
@@ -143,8 +147,8 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
         /* When true, Collection#size() == 0 is removed */
         private final boolean discardEmpty;
 
-        DefensiveAdapter(@Nonnull TypeAdapter<T> author, boolean discardEmpty,
-                         @Nonnull Class<? extends Annotation> annotatedType) {
+        DefensiveAdapter(TypeAdapter<T> author, boolean discardEmpty,
+                         Class<? extends Annotation> annotatedType) {
             Objects.requireNonNull(author, "TypeAdapter cannot be null");
             Objects.requireNonNull(annotatedType, "Annotation cannot be null");
             this.author = author;
@@ -154,9 +158,7 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
 
         @Override
         public void write(JsonWriter out, T value) throws IOException {
-            if (value != null) {
-                author.write(out, value);
-            }
+            author.write(out, value);
         }
 
         @Override
@@ -183,7 +185,7 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @param result data to process
          * @return same result if not null or conditional empty, else {@code null}
          */
-        private T getFilteredData(@Nonnull T result) {
+        private T getFilteredData(T result) {
             for (Field field : result.getClass().getDeclaredFields()) {
                 if (field.getType().isPrimitive()) {
                     // Skip primitives
@@ -199,28 +201,19 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
         }
 
         /**
-         * Check if data contains null or empty objects
+         * Check if data contains null or empty objects only on annotated fields
          *
          * @param result data to process
          * @param field  declared variable in current object
          * @return {@code true} if data is invalid
          */
-        private boolean containsInvalidData(@Nonnull T result, @Nonnull Field field) {
+        private boolean containsInvalidData(T result, Field field) {
             // Check if current field is marked
             if (field.isAnnotationPresent(annotatedType)) {
                 // To read private fields
                 field.setAccessible(true);
 
-                Object value = null;
-                try {
-                    // Lil, costly operation.
-                    value = field.get(result);
-                } catch (IllegalAccessException ex) {
-                    ex.printStackTrace();
-                }
-
-                // Check of emptyness
-                if (isEmpty(value)) {
+                if (hasInvalidData(result, field)) {
                     return true;
                 }
             }
@@ -229,12 +222,32 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
         }
 
         /**
+         * Check if data contains null or empty objects
+         *
+         * @param result data to process
+         * @param field  declared variable in current object
+         * @return {@code true} if data is invalid
+         */
+        private boolean hasInvalidData(T result, Field field) {
+            Object value = null;
+            try {
+                // Lil, costly operation.
+                value = field.get(result);
+            } catch (IllegalAccessException ex) {
+                ex.printStackTrace();
+            }
+
+            // Check of emptyness
+            return isEmpty(value);
+        }
+
+        /**
          * Checks if data is either null or empty
          *
          * @param value data to process
          * @return {@code true} if data is invalid
          */
-        private boolean isEmpty(@Nullable Object value) {
+        private boolean isEmpty(Object value) {
             return value == null || isEmptyCollection(value);
         }
 
@@ -245,7 +258,7 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @param value data to process
          * @return {@code true} if data is invalid
          */
-        private boolean isEmptyCollection(@NotNull Object value) {
+        private boolean isEmptyCollection(Object value) {
             if (value instanceof Collection) {
                 Collection subCollection = ((Collection) value);
                 // Cost is O(N^2), due to rearrangement
