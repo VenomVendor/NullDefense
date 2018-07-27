@@ -2,8 +2,8 @@
 Removes invalid objects during Gson parsing which are marked as required, yet null/empty.
 
 [![Build Status](https://img.shields.io/travis/VenomVendor/NullDefense/master.svg?logo=travis)](https://travis-ci.org/VenomVendor/NullDefense)
-[![License Apache-v2.0](https://img.shields.io/badge/license-Apache--2.0-brightgreen.svg)](https://github.com/VenomVendor/NullDefense/blob/master/LICENSE)
-[![Latest Version](https://img.shields.io/maven-metadata/v/https/jcenter.bintray.com/com/venomvendor/gson-nulldefense/maven-metadata.xml.svg)](https://bintray.com/bintray/jcenter/NullDefense)
+[![Apache License v2.0](https://img.shields.io/badge/license-Apache--2.0-brightgreen.svg)](https://github.com/VenomVendor/NullDefense/blob/master/LICENSE)
+[![Latest Version](https://img.shields.io/maven-metadata/v/https/jcenter.bintray.com/com/venomvendor/gson-nulldefense/maven-metadata.xml.svg)](https://bintray.com/venomvendor/maven/NullDefense/_latestVersion)
 
 # Code Quality
 [![Codecov](https://codecov.io/gh/VenomVendor/NullDefense/branch/master/graph/badge.svg)](https://codecov.io/gh/VenomVendor/NullDefense)
@@ -25,12 +25,60 @@ dependencies {
 }
 ```
 
-### Usage
+## Usage Guide
+
+### Annotation
+- Use any existing annotation with [RetentionPolicy.RUNTIME](https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/RetentionPolicy.html)
+- Creating simple annotation with [RetentionPolicy.RUNTIME](https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/RetentionPolicy.html)
+
+    ```java
+    package com.example.annotation;
+    
+    import java.lang.annotation.ElementType;
+    import java.lang.annotation.Retention;
+    import java.lang.annotation.RetentionPolicy;
+    import java.lang.annotation.Target;
+    
+    /* Retention Policy should be runtime */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.FIELD})
+    public @interface Mandatory {
+    
+    }
+    ```
+> Tip: If you are using [Realm in Android](https://github.com/realm/realm-java), use [@io.realm.annotations.Required](https://github.com/realm/realm-java/blob/master/realm-annotations/src/main/java/io/realm/annotations/Required.java) 
+
+
+### Marking required fields
+- Annotate in POJOs used with Gson
+    ```java
+    public class CustomerDetail {
+    
+        @Mandatory
+        @SerializedName("first_name") private String firstName;
+
+        // Optional
+        @SerializedName("lastName") private String lastName;
+
+        @Mandatory
+        @SerializedName("addresses") private List<Address> addresses;
+
+        ...
+        ...
+        ...
+
+        // Setter/Getter
+    }
+    ```
+
+### Registering Adapter
 ```java
 TypeAdapterFactory nullDefenceAdapter = new NullDefenseTypeAdapterFactory(Mandatory.class);
 
 Gson gson = new GsonBuilder()
+        // Add null defense Adapter
         .registerTypeAdapterFactory(nullDefenceAdapter)
+        // More options
         .enableComplexMapKeySerialization()
         .setPrettyPrinting()
         .setLenient()
@@ -304,13 +352,13 @@ assertEquals(1, parent.getChildren().size());
 assertNull(parent);
 ```
 
-
-### [More Tests here⬈](https://github.com/VenomVendor/NullDefense/tree/master/src/test "Unit Tests")
- 
 -------------------
 
-## Code Coverage
-<a href="https://codecov.io/gh/VenomVendor/NullDefense/list/master/"><img src="https://codecov.io/gh/VenomVendor/NullDefense/branch/master/graphs/sunburst.svg" width="250" /><a/>
+<br/>
+## More [Tests⬈](https://github.com/VenomVendor/NullDefense/tree/master/src/test "Unit Tests")<br/><br/>
 
-## Java Docs
-<a target="_blank" href="https://venomvendor.github.io/NullDefense/docs/javadoc/">Click here for Java documentation<a/>
+## <a target="_blank" href="https://venomvendor.github.io/NullDefense/docs/javadoc/">Java Docs⬈<a/><br/><br/>
+
+## Code Coverage [![Codecov](https://codecov.io/gh/VenomVendor/NullDefense/branch/master/graph/badge.svg)](https://codecov.io/gh/VenomVendor/NullDefense)
+
+<a href="https://codecov.io/gh/VenomVendor/NullDefense/list/master/"><img src="https://codecov.io/gh/VenomVendor/NullDefense/branch/master/graphs/sunburst.svg" width="300" /><a/>
