@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.venomvendor.library.gson;
+package com.venomvendor.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -30,16 +30,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 
 
 /**
- * Adapter for removing <b>null</b> objects &amp; <b>empty</b> Collection once the object is created.
+ * Adapter for removing <b>null</b> objects &amp; <b>empty</b> Collections, once object is created.
  * <p>
  * Incase of {@link Collection}, empty collection is invalid unless {@link #retainEmptyCollection()}
- * is called explicility to retain empty collection. This can be useful incase of search results.
+ * is called explicitly to retain empty collection. This can be useful incase of search results.
  * <p>
- * This also processess all collection &amp; finally removes {@code null} from Collection,
+ * This also processes all collection &amp; finally removes {@code null} from Collection,
  * further processes collection to remove all {@code null} from results.<pre>
  *   public class Parent {
  *        &#064;Mandatory
@@ -76,7 +75,7 @@ import java.util.Objects;
  *         .create();
  * </pre>
  */
-@SuppressWarnings("All")
+@SuppressWarnings("WeakerAccess")
 public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
 
     /* Annotation by which variables are marked mandatory */
@@ -98,7 +97,9 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
      * @throws NullPointerException if annotated class is null
      */
     public NullDefenseTypeAdapterFactory(Class<? extends Annotation> annotatedType) {
-        Objects.requireNonNull(annotatedType, "Annotation class cannot be null");
+        if (annotatedType == null) {
+            throw new NullPointerException("Annotation class cannot be null");
+        }
         this.annotatedType = annotatedType;
         removeEmptyCollection();
     }
@@ -124,15 +125,18 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<T> author = gson.getDelegateAdapter(this, type);
-        return new DefensiveAdapter<>(author, discardEmpty, annotatedType);
+        return new DefensiveAdapter<T>(author, discardEmpty, annotatedType);
     }
 
     /**
      * Adapter that removes null objects.
-     * A callback is recieved from Gson to read &amp; write.
+     * A callback is received from Gson to read &amp; write.
      * During {@link #read(JsonReader)} if return value is null, then this is ignored.
      *
      * @param <T> Type of object.
@@ -149,8 +153,6 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
 
         DefensiveAdapter(TypeAdapter<T> author, boolean discardEmpty,
                          Class<? extends Annotation> annotatedType) {
-            Objects.requireNonNull(author, "TypeAdapter cannot be null");
-            Objects.requireNonNull(annotatedType, "Annotation cannot be null");
             this.author = author;
             this.discardEmpty = discardEmpty;
             this.annotatedType = annotatedType;
@@ -163,11 +165,12 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
 
         @Override
         public T read(JsonReader reader) throws IOException {
-            // Usually never null
+            // Usually non-null
             if (reader == null) {
                 return null;
             }
             // Get read value, after processing with gson
+            // This is where Object is created from json
             T result = author.read(reader);
 
             // if null, return it.
@@ -186,18 +189,35 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @return same result if not null or conditional empty, else {@code null}
          */
         private T getFilteredData(T result) {
-            for (Field field : result.getClass().getDeclaredFields()) {
+            Class<?> clz = result.getClass();
+            boolean isMarkedInClz = clz.isAnnotationPresent(annotatedType);
+
+            for (Field field : clz.getDeclaredFields()) {
                 if (field.getType().isPrimitive()) {
                     // Skip primitives
                     continue;
                 }
-                if (containsInvalidData(result, field)) {
+                if (isNotValid(result, isMarkedInClz, field)) {
+                    // Discard result & return null.
                     return null;
                 }
             }
 
             // Finally, we have valid data.
             return result;
+        }
+
+        /**
+         * @param result        data to process
+         * @param isMarkedInClz is marked in class level, ie. all fields are mandatory
+         * @param field         declared variable in current object
+         * @return {@code true} if data is invalid
+         */
+        private boolean isNotValid(T result, boolean isMarkedInClz, Field field) {
+            // Check if current field is marked
+            boolean isMarked = isMarkedInClz || field.isAnnotationPresent(annotatedType);
+
+            return isMarked && containsInvalidData(result, field);
         }
 
         /**
@@ -208,17 +228,11 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @return {@code true} if data is invalid
          */
         private boolean containsInvalidData(T result, Field field) {
-            // Check if current field is marked
-            if (field.isAnnotationPresent(annotatedType)) {
-                // To read private fields
-                field.setAccessible(true);
+            // To read private fields
+            field.setAccessible(true);
 
-                if (hasInvalidData(result, field)) {
-                    return true;
-                }
-            }
-            // Data is valid
-            return false;
+            // Validate data
+            return hasInvalidData(result, field);
         }
 
         /**
@@ -234,10 +248,11 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
                 // Lil, costly operation.
                 value = field.get(result);
             } catch (IllegalAccessException ex) {
+                // Can't help
                 ex.printStackTrace();
             }
 
-            // Check of emptyness
+            // Check for emptiness
             return isEmpty(value);
         }
 
@@ -258,14 +273,14 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @param value data to process
          * @return {@code true} if data is invalid
          */
+        @SuppressWarnings("SuspiciousMethodCalls")
         private boolean isEmptyCollection(Object value) {
             if (value instanceof Collection) {
-                Collection subCollection = ((Collection) value);
+                Collection<?> subCollection = ((Collection) value);
                 // Cost is O(N^2), due to rearrangement
                 subCollection.removeAll(NULL_COLLECTION);
-                if (discardEmpty && subCollection.isEmpty()) {
-                    return true;
-                }
+                // Remove object if collection is empty.
+                return discardEmpty && subCollection.isEmpty();
             }
             return false;
         }

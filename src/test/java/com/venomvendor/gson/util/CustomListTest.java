@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package com.venomvendor.library.gson.annotation;
+package com.venomvendor.gson.util;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.ArrayList;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-public @interface MandatoryTest {
+public class CustomListTest<T> extends ArrayList<T> {
 
 }

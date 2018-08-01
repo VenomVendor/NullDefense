@@ -2,8 +2,8 @@
 > Removes invalid objects during Gson parsing which are marked as required, yet null/empty.
 
 [![Build Status](https://img.shields.io/travis/VenomVendor/NullDefense/master.svg?logo=travis)](https://travis-ci.org/VenomVendor/NullDefense)
-[![Apache License v2.0](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://github.com/VenomVendor/NullDefense/blob/master/LICENSE)
-[![Latest Version](https://img.shields.io/maven-metadata/v/https/jcenter.bintray.com/com/venomvendor/gson-nulldefense/maven-metadata.xml.svg)](https://bintray.com/bintray/jcenter/NullDefense)
+[![Apache License v2.0](https://img.shields.io/badge/license-Apache--2.0-brightgreen.svg)](https://github.com/VenomVendor/NullDefense/blob/master/LICENSE)
+[![Latest Version](https://img.shields.io/maven-metadata/v/https/jcenter.bintray.com/com/venomvendor/gson-nulldefense/maven-metadata.xml.svg)](https://bintray.com/venomvendor/maven/NullDefense/_latestVersion)
 
 # Code Quality
 [![Codecov](https://codecov.io/gh/VenomVendor/NullDefense/branch/master/graph/badge.svg)](https://codecov.io/gh/VenomVendor/NullDefense)

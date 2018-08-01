@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.venomvendor.library.gson.model;
+package com.venomvendor.gson.model;
 
-import com.venomvendor.library.gson.annotation.MandatoryTest;
+import com.venomvendor.gson.annotation.MandatoryTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,7 @@ public class LanguageTest {
 
     @MandatoryTest
     private List<String> knownLanguages = new ArrayList<>();
+    private List<String> learning;
 
     public List<String> getKnownLanguages() {
         return knownLanguages;
@@ -32,5 +33,13 @@ public class LanguageTest {
 
     public void setKnownLanguages(List<String> knownLanguages) {
         this.knownLanguages = knownLanguages;
+    }
+
+    public List<String> getLearning() {
+        return learning;
+    }
+
+    public void setLearning(List<String> learning) {
+        this.learning = learning;
     }
 }
