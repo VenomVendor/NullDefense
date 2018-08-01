@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.venomvendor.library.gson;
+package com.venomvendor.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapterFactory;
-import com.venomvendor.library.gson.annotation.MandatoryTest;
-import com.venomvendor.library.gson.util.ResourceHelperTest;
+import com.venomvendor.gson.annotation.MandatoryTest;
+import com.venomvendor.gson.util.ResourceHelperTest;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;

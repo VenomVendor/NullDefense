@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.venomvendor.library.gson.model;
+package com.venomvendor.gson.model;
 
-import com.google.gson.annotations.SerializedName;
-import com.venomvendor.library.gson.annotation.MandatoryTest;
-import com.venomvendor.library.gson.util.CustomListTest;
 
-public class ParentTest {
+import com.venomvendor.gson.annotation.MandatoryTest;
 
-    @MandatoryTest
-    @SerializedName("name")
+@MandatoryTest
+public class ChildTest {
+
     private String name;
-    @MandatoryTest
-    @SerializedName("children")
-    private CustomListTest<ChildTest> children;
+    private boolean isMale;
+    private int age;
+    private LanguageTest language;
 
     public String getName() {
         return name;
@@ -37,11 +35,27 @@ public class ParentTest {
         this.name = name;
     }
 
-    public CustomListTest<ChildTest> getChildren() {
-        return children;
+    public boolean isMale() {
+        return isMale;
     }
 
-    public void setChildren(CustomListTest<ChildTest> children) {
-        this.children = children;
+    public void setMale(boolean male) {
+        isMale = male;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public LanguageTest getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(LanguageTest language) {
+        this.language = language;
     }
 }

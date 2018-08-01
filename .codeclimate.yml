@@ -6,7 +6,6 @@ plugins:
       - "java-basic"
       - "java-braces"
       - "java-codesize"
-      - "java-codesize"
       - "java-design"
       - "java-naming"
   sonar-java:
@@ -14,4 +13,4 @@ plugins:
     config:
       tests_patterns:
       - src/test/**
-      sonar.java.source: 8
+      sonar.java.source: 1.6

@@ -1,6 +1,6 @@
-extra["major"] = 1
+extra["major"] = 2
 extra["minor"] = 0
-extra["patch"] = 1
+extra["patch"] = 0
 
 val suffix = ""
 val version = "${extra["major"]}.${extra["minor"]}.${extra["patch"]}"

@@ -12,6 +12,16 @@ New Line is created by adding TWO whitespace at EOL
 
 # Release Notes
 
+## [v2.0.0](https://github.com/VenomVendor/NullDefense/releases/tag/v2.0.0)
+**Date**:   02-Aug-2018  
+**Fixes**:  [#18](https://github.com/VenomVendor/NullDefense/issues/18), 
+            [#19](https://github.com/VenomVendor/NullDefense/issues/19) 
+**Notes**
+  - Breaking Changes
+  - Renamed package
+  - Added support for class level annotation
+  - Removed Restriction to use JDK 1.7+
+  
 ## [v1.0.1](https://github.com/VenomVendor/NullDefense/releases/tag/v1.0.1)
 **Date**:   27-Jul-2018  
 **Fixes**:  [#16](https://github.com/VenomVendor/NullDefense/issues/16)   

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.venomvendor.library.gson.util;
+package com.venomvendor.gson.util;
 
 import java.io.File;
 import java.io.IOException;
