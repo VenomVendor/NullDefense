@@ -1,0 +1,20 @@
+# Repository Yaml
+codecov:
+  branch: main
+  require_ci_to_pass: true
+comment:
+  behavior: default
+  layout: reach, diff, flags, files, footer
+  require_base: false
+  require_changes: true
+  require_head: true
+coverage:
+  round: up
+  range: 0..10
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 0%
+github_checks:
+  annotations: false
