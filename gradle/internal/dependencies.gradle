@@ -1,0 +1,23 @@
+import static org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+import static org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+import static org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+
+// Source
+dependencies {
+    compileOnly(libs.gson)
+}
+
+// Tests
+dependencies {
+    testImplementation(libs.gson)
+
+    testImplementation(platform(libs.junit))
+    testImplementation(libs.bundles.test)
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events SKIPPED, PASSED, FAILED
+    }
+}
