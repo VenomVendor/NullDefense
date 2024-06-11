@@ -1,0 +1,106 @@
+apply plugin: libs.plugins.publish.get().pluginId
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.withType(Javadoc).configureEach {
+    source = sourceSets.main.allJava
+    setFailOnError(false)
+    options {
+        noTimestamp false
+        linkSource false
+        docEncoding 'UTF-8'
+        setMemberLevel JavadocMemberLevel.PUBLIC
+        stylesheetFile file("$project.rootDir/assets/stylesheet.css")
+    }
+
+    destinationDir layout.buildDirectory.file("docs").get().asFile
+    doFirst {
+        classpath += fileTree(dir: layout.buildDirectory.file("classes"), include: "**/*.class")
+    }
+}
+
+def currentBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+def isRelease = currentBranch == 'main'
+
+def artifact = release.versions.artifactId.get()
+def releaseVersion = "${release.versions.major.get()}.${release.versions.minor.get()}.${release.versions.patch.get()}"
+if (!isRelease) {
+    releaseVersion += "-SNAPSHOT"
+}
+
+publishing {
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir("maven")
+        }
+    }
+    publications {
+        production(MavenPublication) {
+            artifactId = artifact
+            version = releaseVersion
+            from components.java
+            pom {
+                description = "Removes invalid objects during Gson parsing which are marked as required, yet null/empty."
+                url = "https://venomvendor.github.io/NullDefense"
+                packaging = "jar"
+                inceptionYear = "2018"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "VenomVendor"
+                        name = "VenomVendor"
+                        email = "info@VenomVendor.com"
+                        url = "https://VenomVendor.com"
+                        timezone = "Asia/Kolkata"
+                        organization = "Individual"
+                    }
+                }
+                issueManagement {
+                    system = "Github"
+                    url = "https://github.com/VenomVendor/NullDefense/issues/"
+                }
+                scm {
+                    url = "https://github.com/VenomVendor/NullDefense"
+                    connection = "scm:git:ssh://git@github.com:VenomVendor/NullDefense.git"
+                    developerConnection = "scm:git:ssh://git@github.com:VenomVendor/NullDefense.git"
+                    tag = "main"
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+
+            name = "MavenCentral"
+            url = uri(isRelease ? releaseRepo : snapshotRepo)
+
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+
+            credentials(HttpHeaderCredentials) {
+                name = "Authorization"
+                value = System.getenv("MAVEN_CENTRAL_TOKEN")
+            }
+        }
+    }
+}
+
+signing {
+    def signingKeyId = findProperty("signingKeyId") ?: System.getenv("SIGNING_KEY_ID")
+    def signingKey = findProperty("signingKey") ?: System.getenv("SIGNING_KEY")
+    def signingPassword = findProperty("signingPassword") ?: System.getenv("SIGNING_PASSWORD")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+
+    sign publishing.publications.production
+}
