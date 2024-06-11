@@ -1,4 +1,4 @@
-theme: jekyll-theme-cayman
+remote_theme: "dracula/gh-pages"
 title: NullDefense | Gson
 description: Removes invalid objects during Gson parsing which are marked as required, yet null/empty.
 show_downloads: true
