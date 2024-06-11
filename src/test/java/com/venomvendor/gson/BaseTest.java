@@ -25,13 +25,10 @@ import com.venomvendor.gson.util.ResourceHelperTest;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 
 import javax.annotation.Nonnull;
 
 @TestInstance(value = TestInstance.Lifecycle.PER_CLASS)
-@RunWith(JUnitPlatform.class)
 abstract class BaseTest {
 
     static final long TIME_OUT = 1L;
