@@ -19,6 +19,7 @@ package com.venomvendor.gson;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.internal.Primitives;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -29,13 +30,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Collections;
-
+import java.util.Objects;
 
 /**
  * Adapter for removing <b>null</b> objects &amp; <b>empty</b> Collections, once object is created.
  * <p>
- * Incase of {@link Collection}, empty collection is invalid unless {@link #retainEmptyCollection()}
+ * In case of {@link Collection}, empty collection is invalid unless {@link #retainEmptyCollection()}
  * is called explicitly to retain empty collection. This can be useful incase of search results.
  * <p>
  * This also processes all collection &amp; finally removes {@code null} from Collection,
@@ -47,10 +47,10 @@ import java.util.Collections;
  *
  *        &#064;Mandatory
  *        &#064;SerializedName("children")
- *        private CustomList<Child> children;
+ *        private CustomList&lt;Child&gt; children;
  *
  *        &#064;SerializedName("id")
- *        private Integer id
+ *        private Integer id;
  *
  *        ...
  *        setters/getters
@@ -59,7 +59,7 @@ import java.util.Collections;
  * When registered, Gson will remove the Whole object if any of the field marked as {@code Mandatory}
  * is null, however the same is not applicable for {@code Primitive} types.
  * Refer: {@link com.google.gson.internal.Primitives#isPrimitive(Type)}
- * <p>
+ * <br>
  * <pre>TypeAdapterFactory typeAdapter = new NullDefenseTypeAdapterFactory(Mandatory.class)
  *         // To retain empty collection
  *         .retainEmptyCollection()
@@ -75,7 +75,6 @@ import java.util.Collections;
  *         .create();
  * </pre>
  */
-@SuppressWarnings("WeakerAccess")
 public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
 
     /* Annotation by which variables are marked mandatory */
@@ -131,7 +130,7 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<T> author = gson.getDelegateAdapter(this, type);
-        return new DefensiveAdapter<T>(author, discardEmpty, annotatedType);
+        return new DefensiveAdapter<>(author, discardEmpty, annotatedType);
     }
 
     /**
@@ -142,8 +141,6 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
      * @param <T> Type of object.
      */
     private static final class DefensiveAdapter<T> extends TypeAdapter<T> {
-        /* Single Immutable copy of null */
-        private static final Collection NULL_COLLECTION = Collections.singleton(null);
         /* Registered type adapter for current type */
         private final TypeAdapter<T> author;
         /* Annotation by which variables are marked mandatory */
@@ -151,8 +148,7 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
         /* When true, Collection#size() == 0 is removed */
         private final boolean discardEmpty;
 
-        DefensiveAdapter(TypeAdapter<T> author, boolean discardEmpty,
-                         Class<? extends Annotation> annotatedType) {
+        DefensiveAdapter(TypeAdapter<T> author, boolean discardEmpty, Class<? extends Annotation> annotatedType) {
             this.author = author;
             this.discardEmpty = discardEmpty;
             this.annotatedType = annotatedType;
@@ -193,8 +189,8 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
             boolean isMarkedInClz = clz.isAnnotationPresent(annotatedType);
 
             for (Field field : clz.getDeclaredFields()) {
-                if (field.getType().isPrimitive()) {
-                    // Skip primitives
+                if (field.getType().isPrimitive() || Primitives.isWrapperType(field.getType())) {
+                    // Skip primitives and their boxed types
                     continue;
                 }
                 if (isNotValid(result, isMarkedInClz, field)) {
@@ -228,11 +224,14 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @return {@code true} if data is invalid
          */
         private boolean containsInvalidData(T result, Field field) {
-            // To read private fields
+            boolean accessible = field.isAccessible();
             field.setAccessible(true);
-
-            // Validate data
-            return hasInvalidData(result, field);
+            try {
+                // Validate data
+                return hasInvalidData(result, field);
+            } finally {
+                field.setAccessible(accessible);
+            }
         }
 
         /**
@@ -243,13 +242,12 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @return {@code true} if data is invalid
          */
         private boolean hasInvalidData(T result, Field field) {
-            Object value = null;
+            Object value;
             try {
                 // Lil, costly operation.
                 value = field.get(result);
-            } catch (IllegalAccessException ex) {
-                // Can't help
-                ex.printStackTrace();
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Failed to access field: " + field.getName(), e);
             }
 
             // Check for emptiness
@@ -273,12 +271,10 @@ public final class NullDefenseTypeAdapterFactory implements TypeAdapterFactory {
          * @param value data to process
          * @return {@code true} if data is invalid
          */
-        @SuppressWarnings("SuspiciousMethodCalls")
         private boolean isEmptyCollection(Object value) {
             if (value instanceof Collection) {
-                Collection<?> subCollection = ((Collection) value);
-                // Cost is O(N^2), due to rearrangement
-                subCollection.removeAll(NULL_COLLECTION);
+                Collection<?> subCollection = (Collection<?>) value;
+                subCollection.removeIf(Objects::isNull);
                 // Remove object if collection is empty.
                 return discardEmpty && subCollection.isEmpty();
             }
