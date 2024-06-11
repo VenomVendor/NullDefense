@@ -1,0 +1,33 @@
+apply plugin: libs.plugins.jacoco.get().pluginId
+
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
+
+def xmlReportPath = layout.buildDirectory.file("reports/jacoco/report.xml")
+
+jacocoTestReport {
+    dependsOn test
+    mustRunAfter javadoc
+    reports {
+        html.required = true
+        xml.required = true
+        xml.outputLocation = xmlReportPath
+        html.outputLocation = layout.buildDirectory.dir("reports/jacoco/html")
+    }
+
+    def excludedClasses = ['**/*Test*.*']
+
+    def debugTree = fileTree(layout.buildDirectory.dir("classes")) {
+        excludes = excludedClasses
+    }
+    def mainSrc = layout.projectDirectory.dir("src/main/java")
+
+    sourceDirectories.setFrom(files([mainSrc]))
+    classDirectories.setFrom(files([debugTree]))
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        includes = ['**/*.exec']
+    })
+}
+
+test.finalizedBy jacocoTestReport
