@@ -1,0 +1,99 @@
+name: Build on PR
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    name: Build on Java ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ["8", "21"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+
+      - name: Setup Gradle and publish build scans
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Set TERM variable for gradle
+        run: echo "TERM=dumb" >> $GITHUB_ENV
+
+      - name: Display environment info
+        run: |
+          ./gradlew -v
+          uname -a
+
+      - name: Clean previous gradle builds
+        run: ./gradlew clean -q -S
+
+      - name: Build using gradle
+        run: ./gradlew build -q -S
+
+      - name: Remove Gradle cache lock file
+        if: always()
+        run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
+
+  test:
+    needs: build
+    name: Test on Java 17
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Setup Gradle and publish build scans
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: true
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Set TERM variable for gradle
+        run: echo "TERM=dumb" >> $GITHUB_ENV
+
+      - name: Display environment info
+        run: |
+          ./gradlew -v
+          uname -a
+
+      - name: Run tests with Gradle wrapper
+        run: ./gradlew test -S
+
+      - name: Remove Gradle cache lock file
+        if: always()
+        run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
+
+      - name: Code coverage reports by Codecov
+        uses: codecov/codecov-action@v4.0.1
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          codecov_yml_path: ./codecov.yml
+          name: Branch Coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: VenomVendor/NullDefense
+          file: ./build/reports/jacoco/report.xml
+          fail_ci_if_error: true
