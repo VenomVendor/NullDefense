@@ -18,6 +18,7 @@ package com.venomvendor.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.venomvendor.gson.annotation.MandatoryTest;
@@ -227,8 +228,8 @@ class NullDefenseTypeAdapterFactoryTest extends BaseTest {
 
     @Test
     @Tag("+ve")
-    @DisplayName("Should generate Three child as `knownLanguages` is empty & accepted")
-    void shouldGenerateOneChildButThreeActually() {
+    @DisplayName("Should generate Three children as `knownLanguages` is empty & accepted")
+    void shouldGenerateThreeChildren() {
         TypeAdapterFactory typeAdapter = new NullDefenseTypeAdapterFactory(MandatoryTest.class)
                 .retainEmptyCollection()
                 .removeEmptyCollection()
@@ -250,6 +251,48 @@ class NullDefenseTypeAdapterFactoryTest extends BaseTest {
             assertFalse(parent.getChildren().isEmpty());
 
             assertEquals(3, parent.getChildren().size());
+        });
+    }
+
+    @Test
+    @Tag("+ve")
+    @DisplayName("Test with Empty Collection Handling")
+    void emptyCollectionTest() {
+        TypeAdapterFactory typeAdapter = new NullDefenseTypeAdapterFactory(MandatoryTest.class)
+                .retainEmptyCollection();
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapterFactory(typeAdapter)
+                .create();
+
+        String input = getInput("empty-collection.json");
+        ParentTest parent = gson.fromJson(input, ParentTest.class);
+
+        assertNotNull(parent);
+        assertTrue(parent.getChildren().isEmpty());
+    }
+
+    @Test
+    @Tag("-ve")
+    @DisplayName("Invalid JSON Format Test")
+    void invalidJsonTest() {
+        String input = getInput("invalid.json");
+
+        assertThrows(JsonSyntaxException.class, () -> {
+            defensiveParser.fromJson(input, ParentTest.class);
+        });
+    }
+
+    @Test
+    @Tag("+ve")
+    @DisplayName("Performance Test with Large JSON Input")
+    void performanceTest() {
+        String input = getInput("large-input.json");
+
+        assertTimeout(ofSeconds(5), () -> {
+            ParentTest parent = defensiveParser.fromJson(input, ParentTest.class);
+            assertNotNull(parent);
+            assertEquals(2001, parent.getChildren().size());
         });
     }
 }
