@@ -1,0 +1,7 @@
+[versions]
+major = "2"
+minor = "1"
+patch = "0"
+
+groupId = "com.venomvendor"
+artifactId = "gson-nulldefense"

@@ -1,0 +1,19 @@
+[versions]
+jvm = "8"
+gson = "2.11.0"
+junit = "5.10.2"
+jacoco = "0.8.11"
+
+[libraries]
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
+junit = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform = { module = "org.junit.platform:junit-platform-launcher" }
+
+[plugins]
+jacoco = { id = "jacoco", version.ref = "jacoco" }
+publish = { id = "maven-publish" }
+
+[bundles]
+test = ["junit-jupiter", "junit-platform"]
