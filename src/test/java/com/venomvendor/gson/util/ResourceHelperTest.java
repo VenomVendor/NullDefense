@@ -29,7 +29,7 @@ public final class ResourceHelperTest {
         throw new UnsupportedOperationException("Cannot create instance for util");
     }
 
-    public static String getInputforTest(Object currentInstance, String testFileName) {
+    public static String getInputForTest(Object currentInstance, String testFileName) {
         ClassLoader classLoader = currentInstance.getClass().getClassLoader();
         URL resource = classLoader.getResource(testFileName);
         assert resource != null;

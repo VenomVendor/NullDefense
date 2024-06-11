@@ -18,6 +18,7 @@ package com.venomvendor.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 import com.google.gson.TypeAdapterFactory;
 import com.venomvendor.gson.annotation.MandatoryTest;
 import com.venomvendor.gson.util.ResourceHelperTest;
@@ -45,13 +46,13 @@ abstract class BaseTest {
                 .registerTypeAdapterFactory(typeAdapter)
                 .enableComplexMapKeySerialization()
                 .setPrettyPrinting()
-                .setLenient()
+                .setStrictness(Strictness.LENIENT)
                 .serializeNulls()
                 .create();
     }
 
     @Nonnull
     String getInput(@Nonnull String fileName) {
-        return ResourceHelperTest.getInputforTest(this, fileName);
+        return ResourceHelperTest.getInputForTest(this, fileName);
     }
 }
