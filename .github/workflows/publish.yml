@@ -87,8 +87,7 @@ jobs:
 
       - name: Build using gradle
         run: |
-          ./gradlew build -q -S
-          ./gradlew publish
+          ./gradlew publishProductionPublicationToMavenRepository -q -S
 
       - name: Remove Gradle cache lock file
         if: always()
