@@ -102,5 +102,7 @@ signing {
     def signingPassword = findProperty("signingPassword") ?: System.getenv("SIGNING_PASSWORD")
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 
+    required { isRelease }
+
     sign publishing.publications.production
 }
