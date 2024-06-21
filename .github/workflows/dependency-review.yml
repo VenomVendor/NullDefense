@@ -1,0 +1,35 @@
+# Submits a dependency graph and performs dependency review on every pull request
+name: Dependency review for pull requests
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  dependency-submission:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v4
+
+    - name: Set up the JDK used to run Gradle
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Generate and submit dependency graph for the PR
+      uses: gradle/actions/dependency-submission@v3
+      with:
+        build-scan-publish: true
+        build-scan-terms-of-service-url: "https://gradle.com/terms-of-service"
+        build-scan-terms-of-service-agree: "yes"
+  
+  dependency-review:
+    needs: dependency-submission
+    runs-on: ubuntu-latest
+    steps:
+    - name: Perform dependency review
+      uses: actions/dependency-review-action@v4
