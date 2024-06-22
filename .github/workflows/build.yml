@@ -94,7 +94,7 @@ jobs:
         if: always()
         run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
 
-      - name: Branch Codecov Coverage
+      - name: Branch Coverage | Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           codecov_yml_path: ./codecov.yml
@@ -103,11 +103,19 @@ jobs:
           file: build/reports/jacoco/report.xml
           fail_ci_if_error: true
 
-      - name: Branch Codacy Coverage
+      - name: Branch Coverage | Codacy
         uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: build/reports/jacoco/report.xml
+
+      - name: Branch Coverage | Codeclimate 
+        uses: paambaati/codeclimate-action@v8.0.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_PROJECT_TOKEN }}
+          JACOCO_SOURCE_PATH: src/main/java
+        with:
+          coverageLocations: build/reports/jacoco/report.xml:jacoco
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4

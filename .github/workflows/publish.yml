@@ -40,7 +40,7 @@ jobs:
         if: always()
         run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
 
-      - name: Full Codecov Coverage
+      - name: Full Coverage | Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           codecov_yml_path: ./codecov.yml
@@ -48,11 +48,20 @@ jobs:
           slug: VenomVendor/NullDefense
           file: build/reports/jacoco/report.xml
 
-      - name: Full Codacy Coverage
+      - name: Full Coverage | Codacy
         uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: build/reports/jacoco/report.xml
+
+      - name: Full Coverage | Codeclimate
+        uses: paambaati/codeclimate-action@v8.0.0
+        env:
+          # Set CC_TEST_REPORTER_ID as secret of your repo
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_PROJECT_TOKEN }}
+          JACOCO_SOURCE_PATH: src/main/java
+        with:
+          coverageLocations: build/reports/jacoco/report.xml:jacoco
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
