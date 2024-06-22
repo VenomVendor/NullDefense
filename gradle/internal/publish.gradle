@@ -10,7 +10,7 @@ println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REF_TYPE : ${System.getenv("GITHUB_REF_TYPE
 println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REF_NAME : ${System.getenv("GITHUB_REF_NAME")}"
 println "@@@@@@@@@@@@@@@@@@@@ GITHUB_JOB : ${System.getenv("GITHUB_JOB")}"
 println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REF : ${System.getenv("GITHUB_REF")}"
-println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REPOSITORY_ID : ${System.getenv("GITHUB_REPOSITORY_ID")}"
+println "@@@@@@@@@@@@@@@@@@@@ GITHUB_TRIGGERING_ACTOR : ${System.getenv("GITHUB_TRIGGERING_ACTOR")}"
 println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REPOSITORY_OWNER : ${System.getenv("GITHUB_REPOSITORY_OWNER")}"
 
 def r = release.versions
