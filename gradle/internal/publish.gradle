@@ -4,6 +4,9 @@ def isCi = System.getenv("CI")?.toBoolean()
 def isTag = "tag".equalsIgnoreCase(System.getenv("GITHUB_REF_TYPE"))
 def isValidTag = System.getenv("GITHUB_REF_NAME")?.startsWith("v")
 def isRelease = isCi && isTag && isValidTag
+println "@@@@@@@@@@@@@@@@@@@@ isCi: $isCi, isTag: $isTag, isValidTag: $isValidTag, isRelease: isRelease"
+println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REF_TYPE : ${System.getenv("GITHUB_REF_TYPE")}"
+println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REF_NAME : ${System.getenv("GITHUB_REF_NAME")}"
 
 def r = release.versions
 def artifact = r.artifactId.get()
