@@ -13,10 +13,10 @@ jobs:
     environment: publish
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Java 21
+      - name: Setup Java 11
         uses: actions/setup-java@v4
         with:
-          java-version: "21"
+          java-version: "11"
           distribution: "temurin"
           architecture: x64
 
@@ -55,10 +55,10 @@ jobs:
     needs: code-coverage
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Java 21
+      - name: Setup Java 11
         uses: actions/setup-java@v4
         with:
-          java-version: "21"
+          java-version: "11"
           distribution: "temurin"
           architecture: x64
 

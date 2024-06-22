@@ -1,5 +1,5 @@
 [versions]
-jvm = "8"
+jvm = "11"
 gson = "2.11.0"
 junit = "5.10.2"
 jacoco = "0.8.11"
