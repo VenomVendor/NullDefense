@@ -1,11 +1,13 @@
-name: Publish on Change
+name: Publish Release
 
 on:
   push:
     branches: ["main"]
+    tags:
+      - "v*"
 
 jobs:
-  coverage:
+  code-coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
     environment: publish
@@ -25,18 +27,12 @@ jobs:
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-use-agree: "yes"
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Set TERM variable for gradle
-        run: echo 'TERM=dumb' >> $GITHUB_ENV
-
       - name: Display environment info
         run: |
           ./gradlew -v
           uname -a
 
-      - name: Build using gradle
+      - name: Test using gradle
         run: |
           ./gradlew test -q -S
 
@@ -44,10 +40,9 @@ jobs:
         if: always()
         run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
 
-      - name: Code coverage reports by Codecov
+      - name: Full Coverage
         uses: codecov/codecov-action@v4.0.1
         with:
-          name: Full Coverage
           codecov_yml_path: ./codecov.yml
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: VenomVendor/NullDefense
@@ -57,7 +52,7 @@ jobs:
     name: Publish artifacts
     runs-on: ubuntu-latest
     environment: publish
-    needs: coverage
+    needs: code-coverage
     steps:
       - uses: actions/checkout@v4
       - name: Setup Java 21
@@ -74,12 +69,6 @@ jobs:
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-use-agree: "yes"
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Set TERM variable for gradle
-        run: echo 'TERM=dumb' >> $GITHUB_ENV
-
       - name: Display environment info
         run: |
           ./gradlew -v
@@ -87,7 +76,8 @@ jobs:
 
       - name: Build using gradle
         run: |
-          ./gradlew publishProductionPublicationToMavenRepository -q -S
+          echo "Publishing triggered from ${GITHUB_REF_NAME}"
+          ./gradlew publish --no-configuration-cache -q -S
 
       - name: Remove Gradle cache lock file
         if: always()

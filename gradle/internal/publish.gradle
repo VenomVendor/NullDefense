@@ -1,9 +1,19 @@
 apply plugin: libs.plugins.publish.get().pluginId
 
-java {
-    withJavadocJar()
-    withSourcesJar()
+def isCi = System.getenv("CI")?.toBoolean()
+def isTag = "tag".equalsIgnoreCase(System.getenv("GITHUB_REF_TYPE"))
+def isValidTag = System.getenv("GITHUB_REF_NAME")?.startsWith("v")
+def isRelease = isCi && isTag && isValidTag
+
+def r = release.versions
+def artifact = r.artifactId.get()
+def releaseVersion = "${r.major.get()}.${r.minor.get()}.${r.patch.get()}"
+if (!isRelease) {
+    releaseVersion += "-SNAPSHOT"
 }
+
+project.setGroup(r.groupId.get())
+project.setVersion(releaseVersion)
 
 tasks.withType(Javadoc).configureEach {
     source = sourceSets.main.allJava
@@ -22,21 +32,12 @@ tasks.withType(Javadoc).configureEach {
     }
 }
 
-def currentBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-def isRelease = currentBranch == 'main'
-
-def artifact = release.versions.artifactId.get()
-def releaseVersion = "${release.versions.major.get()}.${release.versions.minor.get()}.${release.versions.patch.get()}"
-if (!isRelease) {
-    releaseVersion += "-SNAPSHOT"
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
-    repositories {
-        maven {
-            url = layout.buildDirectory.dir("maven")
-        }
-    }
     publications {
         production(MavenPublication) {
             artifactId = artifact
@@ -78,28 +79,25 @@ publishing {
     }
     repositories {
         maven {
-            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            def releaseRepo = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://oss.sonatype.org/content/repositories/snapshots/"
 
-            name = "MavenCentral"
+            name = "OSSRH"
             url = uri(isRelease ? releaseRepo : snapshotRepo)
+            url = snapshotRepo
 
-            authentication {
-                header(HttpHeaderAuthentication)
-            }
-
-            credentials(HttpHeaderCredentials) {
-                name = "Authorization"
-                value = System.getenv("MAVEN_CENTRAL_TOKEN")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
             }
         }
     }
 }
 
 signing {
-    def signingKeyId = findProperty("signingKeyId") ?: System.getenv("SIGNING_KEY_ID")
-    def signingKey = findProperty("signingKey") ?: System.getenv("SIGNING_KEY")
-    def signingPassword = findProperty("signingPassword") ?: System.getenv("SIGNING_PASSWORD")
+    def signingKeyId = System.getenv("SIGNING_KEY_ID")
+    def signingKey = System.getenv("SIGNING_KEY")
+    def signingPassword = System.getenv("SIGNING_PASSWORD")
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 
     required { isRelease }
