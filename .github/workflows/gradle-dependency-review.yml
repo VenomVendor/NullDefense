@@ -26,6 +26,7 @@ jobs:
           build-scan-publish: true
           build-scan-terms-of-service-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-service-agree: "yes"
+          dependency-graph: generate-and-upload
 
   dependency-review:
     needs: dependency-submission
