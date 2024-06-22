@@ -46,6 +46,15 @@ jobs:
         if: always()
         run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
 
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-artifacts
+          path: build/libs/
+          retention-days: 2
+          compression-level: 9
+          overwrite: true
+
   code-coverage:
     needs: build
     name: Test on Java 17
@@ -83,5 +92,13 @@ jobs:
           codecov_yml_path: ./codecov.yml
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: VenomVendor/NullDefense
-          file: ./build/reports/jacoco/report.xml
+          file: build/reports/jacoco/report.xml
           fail_ci_if_error: true
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: build/reports/
+          retention-days: 3
+          compression-level: 9
