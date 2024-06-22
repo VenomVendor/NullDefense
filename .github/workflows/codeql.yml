@@ -1,4 +1,4 @@
-name: "Code Quality"
+name: "CodeQL"
 
 on:
   push:
@@ -15,6 +15,7 @@ jobs:
   codacy-security-scan:
     name: Codacy Security Scan
     runs-on: ubuntu-latest
+    if: ${{ false }}
     permissions:
       contents: read
       security-events: write
