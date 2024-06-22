@@ -4,9 +4,14 @@ def isCi = System.getenv("CI")?.toBoolean()
 def isTag = "tag".equalsIgnoreCase(System.getenv("GITHUB_REF_TYPE"))
 def isValidTag = System.getenv("GITHUB_REF_NAME")?.startsWith("v")
 def isRelease = isCi && isTag && isValidTag
-println "@@@@@@@@@@@@@@@@@@@@ isCi: $isCi, isTag: $isTag, isValidTag: $isValidTag, isRelease: isRelease"
+println "@@@@@@@@@@@@@@@@@@@@ isCi: $isCi, isTag: $isTag, isValidTag: $isValidTag, isRelease: " +
+        "$isRelease"
 println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REF_TYPE : ${System.getenv("GITHUB_REF_TYPE")}"
 println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REF_NAME : ${System.getenv("GITHUB_REF_NAME")}"
+println "@@@@@@@@@@@@@@@@@@@@ GITHUB_JOB : ${System.getenv("GITHUB_JOB")}"
+println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REF : ${System.getenv("GITHUB_REF")}"
+println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REPOSITORY_ID : ${System.getenv("GITHUB_REPOSITORY_ID")}"
+println "@@@@@@@@@@@@@@@@@@@@ GITHUB_REPOSITORY_OWNER : ${System.getenv("GITHUB_REPOSITORY_OWNER")}"
 
 def r = release.versions
 def artifact = r.artifactId.get()
