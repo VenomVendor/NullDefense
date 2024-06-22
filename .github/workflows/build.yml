@@ -11,7 +11,10 @@ jobs:
     strategy:
       matrix:
         java: ["11", "21"]
-
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - uses: actions/checkout@v4
 
@@ -54,6 +57,11 @@ jobs:
           retention-days: 2
           compression-level: 9
           overwrite: true
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v1.3.2
+        with:
+          subject-path: "build/libs/**/*"
 
   code-coverage:
     needs: build
