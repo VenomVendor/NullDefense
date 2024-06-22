@@ -1,5 +1,3 @@
-group = release.versions.groupId.get()
-
 plugins {
     `java-library`
     `kotlin-dsl`
