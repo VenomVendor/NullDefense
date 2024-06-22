@@ -41,7 +41,7 @@ jobs:
         run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
 
       - name: Full Coverage | Codecov
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@v4.5.0
         with:
           codecov_yml_path: ./codecov.yml
           token: ${{ secrets.CODECOV_TOKEN }}
