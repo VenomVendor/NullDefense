@@ -46,7 +46,15 @@ jobs:
           codecov_yml_path: ./codecov.yml
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: VenomVendor/NullDefense
-          file: ./build/reports/jacoco/report.xml
+          file: build/reports/jacoco/report.xml
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: build/reports/
+          retention-days: 1
+          compression-level: 9
 
   publish:
     name: Publish artifacts
