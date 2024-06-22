@@ -61,6 +61,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: publish
     needs: code-coverage
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - uses: actions/checkout@v4
       - name: Setup Java 11
@@ -90,3 +94,8 @@ jobs:
       - name: Remove Gradle cache lock file
         if: always()
         run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v1.3.2
+        with:
+          subject-path: "build/libs/**/*"
