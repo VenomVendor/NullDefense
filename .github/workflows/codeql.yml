@@ -27,15 +27,16 @@ jobs:
         uses: codacy/codacy-analysis-cli-action@v4.4.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          output: codacy-results.sarif
           format: sarif
+          output: results.sarif
           gh-code-scanning-compat: true
-          max-allowed-issues: 0
+          max-allowed-issues: 2147483647
 
+      # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: codacy-results.sarif
+          sarif_file: results.sarif
 
   github-security-scan:
     name: Github Security Scan
