@@ -59,7 +59,7 @@ jobs:
           overwrite: true
 
       - name: Attest
-        uses: actions/attest-build-provenance@v1.3.3
+        uses: actions/attest-build-provenance@v1.4.0
         with:
           subject-path: "build/libs/**/*"
 
