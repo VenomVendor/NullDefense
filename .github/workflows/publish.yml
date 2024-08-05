@@ -117,6 +117,6 @@ jobs:
         run: rm -rvf $HOME/.gradle/caches/modules-2/modules-2.lock
 
       - name: Attest
-        uses: actions/attest-build-provenance@v1.3.3
+        uses: actions/attest-build-provenance@v1.4.0
         with:
           subject-path: "build/libs/**/*"
