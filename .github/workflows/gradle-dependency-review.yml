@@ -21,7 +21,7 @@ jobs:
           java-version: "11"
 
       - name: Generate and submit dependency graph for the PR
-        uses: gradle/actions/dependency-submission@v3
+        uses: gradle/actions/dependency-submission@v4
         with:
           build-scan-publish: true
           build-scan-terms-of-service-url: "https://gradle.com/terms-of-service"

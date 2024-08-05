@@ -25,7 +25,7 @@ jobs:
           java-version: ${{ matrix.java }}
 
       - name: Setup Gradle and publish build scans
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           build-scan-publish: true
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
@@ -75,7 +75,7 @@ jobs:
           distribution: "temurin"
 
       - name: Setup Gradle and publish build scans
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: true
           build-scan-publish: true
