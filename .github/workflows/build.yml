@@ -110,7 +110,7 @@ jobs:
           coverage-reports: build/reports/jacoco/report.xml
 
       - name: Branch Coverage | Codeclimate 
-        uses: paambaati/codeclimate-action@v8.0.0
+        uses: paambaati/codeclimate-action@v9.0.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_PROJECT_TOKEN }}
           JACOCO_SOURCE_PATH: src/main/java
